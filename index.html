@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2XKO Notes</title>
+  <style>
+    /* ================================================
+       THEME
+    ================================================ */
+    :root {
+      --bg:        #09090f;
+      --surface:   #11111d;
+      --surface-2: #18182a;
+      --border:    #1d1d33;
+      --text:      #e4e4f0;
+      --muted:     #60607a;
+      --gold:      #c8941a;
+      --accent:    #c8941a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ================================================
+       HEADER
+    ================================================ */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      height: 48px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+
+    .logo-sub {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0;
+    }
+
+    .header-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+
+    /* ================================================
+       CHARACTER BAR
+    ================================================ */
+    .char-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 72px;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .char-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.12s;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .char-btn:hover {
+      border-color: var(--char-color, var(--muted));
+      color: var(--text);
+    }
+
+    .char-btn.active {
+      background: color-mix(in srgb, var(--char-color, var(--gold)) 12%, transparent);
+      border-color: var(--char-color, var(--gold));
+      color: var(--char-color, var(--gold));
+    }
+
+    .char-portrait-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .char-portrait {
+      /* 250% width zooms in ~2.5x, clipped by the parent circle */
+      width: 250%;
+      height: auto;
+      display: block;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .char-portrait-fallback {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .char-bar-team { margin-left: auto; flex-shrink: 0; }
+
+    /* ================================================
+       LAYOUT
+    ================================================ */
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ================================================
+       SIDEBAR
+    ================================================ */
+    .sidebar {
+      width: 152px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 12px 0;
+      gap: 1px;
+      overflow-y: auto;
+    }
+
+    .sidebar-label {
+      padding: 8px 16px 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      background: transparent;
+      border: none;
+      border-left: 2px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+      transition: all 0.1s;
+    }
+
+    .tab-btn:hover { background: var(--surface-2); color: var(--text); }
+
+    .tab-btn.active {
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+      border-left-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tab-icon { font-size: 14px; width: 18px; text-align: center; }
+
+    /* ================================================
+       MAIN CONTENT
+    ================================================ */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+    }
+
+    .section-header {
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 { font-size: 20px; font-weight: 700; }
+    .section-header p { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+    /* ================================================
+       NOTATION DISPLAY
+    ================================================ */
+    .notation {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 3px;
+      min-height: 28px;
+    }
+
+    /* Glyph images */
+    .glyph {
+      height: 26px;
+      width: auto;
+      display: block;
+      /* subtle shadow to help light-colored glyphs pop on dark bg */
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7));
+    }
+
+    /* ▸ separator between inputs */
+    .n-sep {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    /* + between simultaneous inputs */
+    .n-plus {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    /* fallback for unrecognized tokens */
+    .n-raw {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text);
+      background: var(--surface-2);
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+
+    /* ================================================
+       COMBO CARDS
+    ================================================ */
+    .combo-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .combo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      transition: border-color 0.12s;
+    }
+
+    .combo-card:hover { border-color: var(--accent); }
+
+    .combo-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+    .combo-notes {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    .combo-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+    .tag-pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: var(--surface-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* Notation key / alias legend */
+    .alias-legend {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+    }
+
+    .alias-legend summary {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .alias-legend summary::-webkit-details-marker { display: none; }
+
+    .alias-legend summary::before {
+      content: '▸';
+      font-size: 9px;
+      display: inline-block;
+      transition: transform 0.15s;
+    }
+
+    .alias-legend[open] summary::before { transform: rotate(90deg); }
+
+    .alias-legend .alias-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .alias-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .alias-head {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .alias-key {
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .alias-val { font-size: 12px; color: var(--muted); }
+
+    /* Combo enders */
+    .combo-enders {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .combo-enders-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .ender-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ender-row.is-optional { opacity: 0.5; }
+    .ender-row.is-optional:hover { opacity: 1; }
+
+    .ender-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 110px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ender-opt-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px dashed var(--muted);
+      border-radius: 3px;
+      padding: 1px 4px;
+      flex-shrink: 0;
+    }
+
+    .ender-notes {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ================================================
+       NOTE BLOCKS
+    ================================================ */
+    .notes-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .note-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .note-block h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .note-block p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .note-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .note-list li {
+      font-size: 13px;
+      color: var(--muted);
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .note-list li::before { content: '–'; position: absolute; left: 0; color: var(--accent); }
+
+    /* ================================================
+       MATCHUP CARDS
+    ================================================ */
+    .matchup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .matchup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .matchup-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+
+    .rating-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-bottom: 8px;
+    }
+
+    .r-even       { background: #162616; color: #66bb6a; }
+    .r-slight-adv { background: #102030; color: #4fc3f7; }
+    .r-adv        { background: #0a1a2a; color: #29b6f6; }
+    .r-slight-dis { background: #2a1e10; color: #ffb74d; }
+    .r-dis        { background: #2a1010; color: #ef5350; }
+
+    /* ================================================
+       SETUP CARDS
+    ================================================ */
+    .setup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .setup-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+
+    .setup-execution {
+      background: var(--surface-2);
+      border-radius: 5px;
+      padding: 8px 10px;
+      margin: 8px 0;
+    }
+
+    /* ================================================
+       TEAM PAGE
+    ================================================ */
+    .assist-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+
+    .assist-char-label {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    /* ================================================
+       EMPTY STATE
+    ================================================ */
+    .empty { padding: 56px 20px; text-align: center; color: var(--muted); }
+    .empty .icon { font-size: 36px; margin-bottom: 10px; }
+    .empty p { font-size: 13px; }
+    .empty code {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      background: var(--surface-2);
+      padding: 2px 7px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* ================================================
+       SCROLLBAR
+    ================================================ */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">2XKO <span class="logo-sub">// notes</span></span>
+  <div class="header-sep"></div>
+  <span style="font-size:12px;color:var(--muted);">cokes</span>
+</header>
+
+<div class="char-bar" id="charBar"></div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-label">Character</div>
+    <button class="tab-btn" data-tab="combos">
+      <span class="tab-icon">⚔️</span> Combos
+    </button>
+    <button class="tab-btn" data-tab="gameplan">
+      <span class="tab-icon">🧠</span> Game Plan
+    </button>
+    <button class="tab-btn" data-tab="setups">
+      <span class="tab-icon">🎯</span> Setups
+    </button>
+    <button class="tab-btn" data-tab="knowledge">
+      <span class="tab-icon">📖</span> Knowledge
+    </button>
+    <button class="tab-btn" data-tab="matchups">
+      <span class="tab-icon">🆚</span> Matchups
+    </button>
+    <div class="sidebar-label" style="margin-top:10px">Team</div>
+    <button class="tab-btn" data-tab="team">
+      <span class="tab-icon">🤝</span> Team Notes
+    </button>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+
+<script>
+/*
+   2XKO NOTES  --  HOW TO ADD / EDIT CONTENT
+   ===========================================================
+
+   All your notes live in the `characters` and `teamNotes`
+   objects below. The rendering is automatic -- just edit the data.
+
+   -----------------------------------------------------------
+   NOTATION FORMAT
+   -----------------------------------------------------------
+   Inputs are separated by [->] (typed as two dashes + greater-than).
+   Simultaneous inputs use  +  between them.
+   Directional-modified attacks: write the direction then the
+   button with a space -- "down H" renders down-arrow + H glyph.
+
+   Available tokens:
+
+     ATTACKS      L   M   H   S1   S2
+     DIRECTIONS   forward   back   up   down
+     OTHER        dash   charge   parry   T  (tag)
+
+   Examples -- copy these directly into notation strings:
+     "L [->] M [->] H [->] down H"              launcher route
+     "L [->] M [->] H [->] S1 + S2"             super route
+     "dash [->] L [->] M [->] H [->] down H"    dash-in opener
+     "forward S1 [->] M [->] H [->] down H"     special starter
+     "L [->] M [->] T [->] M [->] H [->] down H" tag combo
+
+   (Write the separator as two dashes + greater-than in your actual notation strings.)
+
+   Anything not in the token list renders as plain text,
+   so you can write "meaty" or "oki" inline freely.
+
+   -----------------------------------------------------------
+   MATCHUP RATINGS
+   -----------------------------------------------------------
+     "even"        5-5
+     "slight-adv"  5.5-4.5  (you win)
+     "adv"         6-4      (you win)
+     "slight-dis"  4.5-5.5  (you lose)
+     "dis"         4-6      (you lose)
+
+   -----------------------------------------------------------
+   COMBO TAGS  (free-form -- use whatever labels you like)
+   -----------------------------------------------------------
+     "bnb"  "meterless"  "super"  "corner"  "midscreen"
+     "launcher"  "punish"  "anti-air"  "approach"
+
+   -----------------------------------------------------------
+   ADDING A CHARACTER
+   -----------------------------------------------------------
+   1. Add a new key to `characters` (e.g. "ekko").
+   2. Fill in name, color, emoji, portrait, and sections.
+   3. Drop a portrait into assets/portraits/ and set the path.
+*/
+
+/*
+   GLYPH MAP -- maps notation tokens to SVG asset paths.
+   Add new tokens here if you get more notation assets.
+*/
+const GLYPHS = {
+  'L':       'assets/notation/Glyph-L.svg',
+  'M':       'assets/notation/Glyph-M.svg',
+  'H':       'assets/notation/Glyph-H.svg',
+  'S1':      'assets/notation/Glyph-S1.svg',
+  'S2':      'assets/notation/Glyph-S2.svg',
+  'T':       'assets/notation/Glyph-T.svg',
+  'A':       'assets/notation/Glyph-A.svg',
+  'forward': 'assets/notation/Glyph-forward.svg',
+  'back':    'assets/notation/Glyph-back.svg',
+  'up':      'assets/notation/Glyph-up.svg',
+  'down':    'assets/notation/Glyph-down.svg',
+  'dash':    'assets/notation/Glyph-dash.svg',
+  'charge':  'assets/notation/Glyph-charge.svg',
+  'parry':   'assets/notation/Glyph-parry.svg',
+};
+
+// CHARACTERS
+const characters = {
+
+  // VI
+  vi: {
+    name: "Vi",
+    color: "#ff4b8b",
+    emoji: "👊",
+    portrait: "assets/portraits/Vi_cs.png",
+
+    // NOTATION KEY -- abbreviations used in Vi's combos
+    // Add your own shortcuts here as you develop them.
+    // Each entry is { desc: "what it's called", notation: "the actual input string" }
+    aliases: {
+      "EU": { desc: "Electric Uppercut", notation: "forward S1 --> L --> charge M" },
+      "EUx2": { desc: "Double Electric Uppercut", notation: "forward S1 --> L --> charge M --> forward S1 --> charge M" },
+      "EUx3":{ desc: "Triple Electric Uppercut", notation: "forward S1 --> L --> charge M --> --> forward S1 -->charge M --> forward S1 --> charge M" },
+      "EPx3": { desc: "Triple Light Electric Punch", notation: "forward S1 --> L --> charge M --> charge L --> charge M --> charge L --> charge M --> charge L" }
+    },
+
+    // COMBOS
+    combos: [
+      // {
+      //   name: "Name",
+      //   notation: "L --> M --> H --> down H",
+      //   notes: "Optional notes.",
+      //   tags: ["bnb", "meterless"],
+      //   enders: [
+      //     { name: "Ender Name", notation: "charge H", notes: "Optional note." }
+      //   ]
+      // }
+      {
+        name: "Mid Screen to Corner BnB",
+        notation: "L --> L --> M --> down M --> H --> EUx2 --> charge H",
+        notes: "High damage combo with flexible ender options",
+        tags: ["bnb", "tag_launcher", "midscreen"],
+        enders: [
+          { name: "Tag Launcher", notation: "M --> H --> H --> down T", notes: "Tag launcher combo." },
+          { name: "Max Damage",   notation: "M --> H --> H --> down H --> L --> M --> H --> S1", notes: "Highest damage & decent OKI" },
+          { name: "Force tech chase", notation: "down L", notes: "Good for mixing oppoents and applying more pressure", optional: true },
+          { name: "S2 Super", notation: "down S2 --> A + S2", notes: "Extra damage, better OKI", optional: true },
+          { name: "L3 Super", notation: "down S2 --> S1 + S2", notes: "Maximum damage", optional: true }
+        ]
+      },
+      {
+        name: "High damage corner combo",
+        notation: "L --> M --> down M --> H --> EPx3 --> forward S1 --> L --> M --> H --> down S2",
+        notes: "High damage corner combo, flexible enders",
+        tags: ["corner", "high_damage", "tag_assist"]
+        ,
+        enders: [
+          { name: "Solo Ender", notation: "up --> S1", notes: "Solo ender combo, easier option"},
+          { name: "Super finisher", notes: "Different super enders for S2 and L3 super"},
+          {name: "S2 Super", notation: "down S2 --> A + S2", notes: "Good damage for 1 bar", optional: true },
+          {name: "L3 Super", notation: "down S2 --> S1 + S2", notes: "Cash out / max daamge", optional: true }
+        ]
+      }
+    ],
+
+    // GAME PLAN
+    gameplan: {
+      overview: "Vi is an aggressive rush-down character who wants to break through the opponent's defense and apply relentless pressure up close. She excels at closing distance quickly and punishing mistakes hard.",
+      neutral: [
+        "M is your main mid-range poke — good reach and good cancel options",
+        "S1 is your primary approach tool — use it to close distance and bully",
+        "Stay patient and fish for whiff punishes before committing to approaches",
+        "H on its own is your bigger committal button — use it on hit confirms only"
+      ],
+      offense: [
+        "After a launcher, follow up in the air — practice your air routes",
+        "After a hard knockdown, go to the Setups tab for oki options",
+        "Mix between lows (down L), overheads, and throws to keep the opponent guessing",
+        "Vi's close-range pressure can be maintained with fast lights in strings"
+      ],
+      defense: [
+        "Vi has a reversal option — use it sparingly so it stays threatening",
+        "When pinned down, look for gaps in their pressure to tag Thresh in",
+        "Back-dash is your escape tool when a reversal feels too risky"
+      ]
+    },
+
+    // SETUPS
+    setups: [
+      // {
+      //   name: "Setup Name",
+      //   description: "What this accomplishes.",
+      //   execution: "notation or free text",
+      //   notes: "Additional context, mix-up options, etc."
+      // }
+      {
+        name: "Knockdown Meaty",
+        description: "After a hard knockdown, dash forward and hit a meaty light on their wakeup.",
+        execution: "down H --> dash --> L meaty",
+        notes: "Beats most reversals if timed right. If they backdash, the L whiffs — follow with M to chase."
+      },
+      {
+        name: "Wakeup Mix",
+        description: "After knockdown, mix between a low and a forward S1 overhead attempt to make them guess on wakeup.",
+        execution: "down L or forward S1",
+        notes: "Keep them honest — once they see one option enough, flip to the other."
+      }
+    ],
+
+    // KNOWLEDGE
+    knowledge: {
+      mechanics: [
+        "S1 can be held/charged for increased range and damage — learn the timing",
+        "Down H is your launcher — all juggle routes start from here",
+        "[Add more mechanical notes as you learn them]"
+      ],
+      frameData: [
+        "L: very fast, safe on block — your go-to pressure button",
+        "Down L: fast low, chains into M",
+        "H: slower, bigger reward — confirm only, risky on block",
+        "Down H: launcher, unsafe on block",
+        "[Add frame data as you research it]"
+      ],
+      tips: [
+        "Don't use S1 from point-blank as an opener — it can be punished on block",
+        "Dash into L is safer than raw S1 for approaching a patient opponent",
+        "[Add tips as you discover them]"
+      ]
+    },
+
+    // MATCHUPS
+    matchups: [
+      // {
+      //   opponent: "Character Name",
+      //   rating: "even",
+      //   notes: "General strategy.",
+      //   keyPoints: ["Watch out for X", "Punish Y with Z"]
+      // }
+      {
+        opponent: "Thresh",
+        rating: "slight-dis",
+        notes: "Thresh's S1 keeps Vi out and makes approaching freely dangerous. Need to bait it and punish the whiff.",
+        keyPoints: [
+          "Bait S1 (hook) by walking into range then back-dashing",
+          "Punish whiffed hook with a full launcher BnB",
+          "Don't jump in carelessly — back H is a strong anti-air"
+        ]
+      }
+    ]
+  },
+
+
+  // THRESH
+  thresh: {
+    name: "Thresh",
+    color: "#00c896",
+    emoji: "⛓",
+    portrait: "assets/portraits/Thresh_cs.png",
+
+    // NOTATION KEY -- add Thresh-specific abbreviations as you learn them
+    aliases: {
+      // "HK": { desc: "Hook", notation: "forward S1" },
+    },
+
+    // COMBOS
+    combos: [
+      {
+        name: "Launcher BnB",
+        notation: "L --> M --> H --> down H",
+        notes: "Core bread and butter. The down H launches — follow up in the air after.",
+        tags: ["bnb", "meterless", "launcher", "midscreen"],
+        enders: [
+          { name: "Tag Launcher", notation: "T", notes: "Hand off to Vi for extension." },
+          { name: "Max Damage",   notation: "forward S1", notes: "Hook ender for damage close." }
+        ]
+      },
+      {
+        name: "Super Combo",
+        notation: "L --> M --> H --> S1 + S2",
+        notes: "Route into super for damage or to close out a stock.",
+        tags: ["super", "meter", "midscreen"]
+      },
+      {
+        name: "S1 Starter",
+        notation: "forward S1 --> M --> H --> down H",
+        notes: "Start with the hook to catch the opponent off-guard, then confirm into launcher.",
+        tags: ["bnb", "meterless", "special-starter"]
+      }
+    ],
+
+    // GAME PLAN
+    gameplan: {
+      overview: "Thresh is a zoning/control character who dominates mid-range with the constant threat of his hook. Force the opponent to fear S1, then capitalize on whiff punishes and confirmed hits for big damage.",
+      neutral: [
+        "Play at mid-range — close enough that S1 is a constant threat",
+        "S1 (hook) is your win condition — condition them to fear it, then vary your timing",
+        "Back H is your anti-air — use it to punish jump-in attempts",
+        "L and M are safe pokes to chip away and test their reactions"
+      ],
+      offense: [
+        "After a launcher, follow up in the air — learn your air routes",
+        "After knockdown, use positioning to force a left/right guess on wakeup",
+        "Tag Vi in off launcher confirms when you want to burn meter for damage"
+      ],
+      defense: [
+        "Back H can interrupt close-range pressure — look for gaps",
+        "S2 (super) can function as a reversal in some situations",
+        "If pressured up close, tag Vi in — she handles close range better"
+      ]
+    },
+
+    // SETUPS
+    setups: [
+      {
+        name: "Hook Bait and Punish",
+        description: "Walk into hook range to bait S1, then dash back and punish the whiff.",
+        execution: "walk forward --> back --> punish with S1 starter",
+        notes: "Works against opponents who throw S1 buttons when they see you in range. Conditions them to be passive."
+      },
+      {
+        name: "Knockdown Positioning",
+        description: "After a knockdown, position yourself to cover both their roll options.",
+        execution: "down H ender --> walk to optimal range",
+        notes: "From optimal range, forward S1 can catch a roll either way. Practice the spacing."
+      }
+    ],
+
+    // KNOWLEDGE
+    knowledge: {
+      mechanics: [
+        "S1 has different ranges/strengths depending on direction — learn the options",
+        "Back H launches the opponent upward — good anti-air and can start air combos",
+        "[Add more mechanical notes here]"
+      ],
+      frameData: [
+        "L: fast, safe — your fastest option up close",
+        "S1: significant startup, punishable on whiff — use thoughtfully",
+        "Back H: good priority vs jump-ins, can be used as an anti-air",
+        "[Add frame data as you research it]"
+      ],
+      tips: [
+        "Never throw S1 randomly — it's a confirm tool, not a poke. Let them walk into it",
+        "Back H is underused — it's a strong neutral and anti-air option",
+        "Mix up your S1 timings so the opponent can't pre-emptively dash through it",
+        "[Add tips as you develop them]"
+      ]
+    },
+
+    // MATCHUPS
+    matchups: [
+      {
+        opponent: "Vi",
+        rating: "slight-adv",
+        notes: "Vi wants to rush in. Deny her with S1 threats at mid-range and anti-air her approaches with back H.",
+        keyPoints: [
+          "Anti-air all jump-in attempts with back H",
+          "S1 punishes whiffed S1 attempts at range",
+          "Don't let her get close — once in, she's hard to get off"
+        ]
+      }
+    ]
+  }
+
+  // 
+  // ADD MORE CHARACTERS — copy and fill this template:
+  // 
+  // ,
+  // mychar: {
+  //   name: "Character Name",
+  //   color: "#hexcolor",
+  //   emoji: "🎮",
+  //   portrait: "assets/portraits/mychar.png",  // or null
+  //   combos: [],
+  //   gameplan: {
+  //     overview: "",
+  //     neutral: [],
+  //     offense: [],
+  //     defense: []
+  //   },
+  //   setups: [],
+  //   knowledge: {
+  //     mechanics: [],
+  //     frameData: [],
+  //     tips: []
+  //   },
+  //   matchups: []
+  // }
+};
+
+
+// TEAM NOTES
+const teamNotes = {
+
+  overview: "Vi and Thresh are a rush-down + control hybrid. Thresh controls space with S1 threat and sets up situations that Vi can exploit up close. Vi's knockdowns give Thresh the breathing room to apply positioning pressure.",
+
+  order: "Default: Vi as point, Thresh as anchor. Consider Thresh point against keep-away characters where S1 threat is more valuable early.",
+
+  synergies: [
+    "Thresh's S1 naturally positions the opponent at Vi's preferred rush-down range",
+    "Vi's knockdowns set up Thresh's spacing pressure and wakeup traps",
+    "Vi's assist can cover Thresh's hook startup from mid-range",
+    "[Add synergy notes as you discover them]"
+  ],
+
+  assists: [
+    {
+      character: "Vi",
+      assistMove: "[Vi assist — update once you know the move]",
+      usage: "Use Vi's assist to cover Thresh's approach or extend pressure after a blocked S1"
+    },
+    {
+      character: "Thresh",
+      assistMove: "[Thresh assist — update once you know the move]",
+      usage: "Thresh's assist can extend Vi's combos or create additional control during Vi's offense"
+    }
+  ],
+
+  tagCombos: [
+    // {
+    //   name: "Tag combo name",
+    //   notation: "L --> M --> T --> M --> H --> down H",
+    //   notes: "Notes"
+    // }
+    {
+      name: "Vi Launch into Thresh",
+      notation: "L --> M --> T --> M --> H --> down H",
+      notes: "Tag Thresh in after Vi's M for extra damage. Practice the tag timing — it varies.",
+    }
+  ]
+};
+
+
+/* =============================================================
+   NOTATION PARSER
+   Converts a notation string into rendered glyph HTML.
+
+   Format rules:
+   - Inputs separated by the [->] separator (two dashes + greater-than)
+   - Simultaneous inputs:  A + B
+   - Directional attack:   down H  (direction then button, space-separated)
+   - Unknown tokens render as plain text, so inline notes are fine.
+============================================================= */
+
+function parseNotation(str) {
+  if (!str) return '';
+
+  // Normalize: collapse any variant of --> / > to a consistent split token
+  str = str.replace(/\s*-->\s*/g, '|||');
+
+  const inputs = str.split('|||');
+
+  const parts = inputs.map(inp => renderInput(inp.trim()));
+
+  // Join with separator glyphs
+  return parts.join('<span class="n-sep">▸</span>');
+}
+
+function renderInput(inp) {
+  if (!inp) return '';
+
+  // Simultaneous: "S1 + S2", "H + S1", etc.
+  if (inp.includes(' + ')) {
+    return inp.split(' + ')
+      .map(p => renderSingleToken(p.trim()))
+      .join('<span class="n-plus">+</span>');
+  }
+
+  // Modified attack: "down H", "forward S1", "charge H", etc.
+  const dirMatch = inp.match(/^(forward|back|up|down|charge)\s+(.+)$/i);
+  if (dirMatch) {
+    return renderGlyph(dirMatch[1].toLowerCase()) + renderGlyph(dirMatch[2]);
+  }
+
+  return renderSingleToken(inp);
+}
+
+function renderSingleToken(tok) {
+  // Also handle "direction button" that ended up as a single token somehow
+  const dirMatch = tok.match(/^(forward|back|up|down)\s+(.+)$/i);
+  if (dirMatch) {
+    return renderGlyph(dirMatch[1].toLowerCase()) + renderGlyph(dirMatch[2]);
+  }
+  return renderGlyph(tok);
+}
+
+function renderGlyph(tok) {
+  tok = tok.trim();
+  // Check map case-sensitively first, then uppercase (handles l/m/h input)
+  const src = GLYPHS[tok] || GLYPHS[tok.toUpperCase()];
+  if (src) {
+    return `<img class="glyph" src="${src}" alt="${tok}" title="${tok}">`;
+  }
+  // Unknown token — render as text chip
+  return `<span class="n-raw">${tok}</span>`;
+}
+
+
+/* =============================================================
+   RENDERING ENGINE  — no need to edit below here
+============================================================= */
+
+const RATING_LABELS = {
+  'even':       '5-5  Even',
+  'slight-adv': '5.5-4.5  Slight Adv',
+  'adv':        '6-4  Advantage',
+  'slight-dis': '4.5-5.5  Slight Disadv',
+  'dis':        '4-6  Disadvantage'
+};
+
+let activeChar = Object.keys(characters)[0];
+let activeTab  = 'combos';
+
+// Section renderers
+
+function renderCombos(c) {
+  const aliasBlock = (c.aliases && Object.keys(c.aliases).length) ? `
+    <details class="alias-legend">
+      <summary>Notation Key</summary>
+      <div class="alias-grid">
+        ${Object.entries(c.aliases).map(([k, v]) => `
+          <div class="alias-row">
+            <div class="alias-head">
+              <span class="alias-key">${k}</span>
+              <span class="alias-val">${v.desc}</span>
+            </div>
+            <div class="notation">${parseNotation(v.notation)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </details>
+  ` : '';
+
+  if (!c.combos?.length) return aliasBlock + empty('No combos yet.', 'Add entries to the combos array in the script.');
+
+  const comboList = `<div class="combo-list">
+    ${c.combos.map(combo => `
+      <div class="combo-card">
+        <div class="combo-name">${combo.name}</div>
+        <div class="notation">${parseNotation(combo.notation)}</div>
+        ${combo.notes ? `<div class="combo-notes">${combo.notes}</div>` : ''}
+        ${combo.tags?.length ? `<div class="combo-tags">${combo.tags.map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>` : ''}
+        ${combo.enders?.length ? `
+          <div class="combo-enders">
+            <div class="combo-enders-label">Enders</div>
+            ${combo.enders.map(e => `
+              <div class="ender-row${e.optional ? ' is-optional' : ''}">
+                <span class="ender-name">
+                  ${e.optional ? '<span class="ender-opt-badge">opt</span>' : ''}
+                  ${e.name}
+                </span>
+                <div class="notation">${parseNotation(e.notation)}</div>
+                ${e.notes ? `<span class="ender-notes">${e.notes}</span>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `).join('')}
+  </div>`;
+
+  return aliasBlock + comboList;
+}
+
+function renderGameplan(c) {
+  if (!c.gameplan) return empty('No game plan notes yet.', 'Add a gameplan object to this character.');
+  const g = c.gameplan;
+  return `<div class="notes-section">
+    ${g.overview ? `<div class="note-block"><h3>Overview</h3><p>${g.overview}</p></div>` : ''}
+    ${noteList('Neutral', g.neutral)}
+    ${noteList('Offense', g.offense)}
+    ${noteList('Defense', g.defense)}
+  </div>`;
+}
+
+function renderSetups(c) {
+  if (!c.setups?.length) return empty('No setups yet.', 'Add entries to the setups array in the script.');
+  return c.setups.map(s => `
+    <div class="setup-card">
+      <h3>${s.name}</h3>
+      ${s.description ? `<p class="combo-notes">${s.description}</p>` : ''}
+      ${s.execution ? `<div class="setup-execution"><div class="notation">${parseNotation(s.execution)}</div></div>` : ''}
+      ${s.notes ? `<div class="combo-notes">${s.notes}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderKnowledge(c) {
+  if (!c.knowledge) return empty('No knowledge notes yet.', 'Add a knowledge object to this character.');
+  const k = c.knowledge;
+  return `<div class="notes-section">
+    ${noteList('Mechanics', k.mechanics)}
+    ${noteList('Frame Data Notes', k.frameData)}
+    ${noteList('Tips & Tricks', k.tips)}
+  </div>`;
+}
+
+function renderMatchups(c) {
+  if (!c.matchups?.length) return empty('No matchup notes yet.', 'Add entries to the matchups array in the script.');
+  return `<div class="matchup-grid">
+    ${c.matchups.map(m => `
+      <div class="matchup-card">
+        <h3>${m.opponent}</h3>
+        <div class="rating-badge r-${m.rating}">${RATING_LABELS[m.rating] || m.rating}</div>
+        ${m.notes ? `<p class="combo-notes">${m.notes}</p>` : ''}
+        ${m.keyPoints?.length ? `
+          <ul class="note-list" style="margin-top:8px">
+            ${m.keyPoints.map(kp=>`<li>${kp}</li>`).join('')}
+          </ul>
+        ` : ''}
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderTeam() {
+  const t = teamNotes;
+  return `<div class="notes-section">
+    ${t.overview ? `<div class="note-block"><h3>Overview</h3><p>${t.overview}</p></div>` : ''}
+    ${t.order ? `<div class="note-block"><h3>Point / Anchor Order</h3><p>${t.order}</p></div>` : ''}
+    ${noteList('Team Synergies', t.synergies)}
+    ${t.assists?.length ? `
+      <div class="note-block">
+        <h3>Assists</h3>
+        ${t.assists.map(a => `
+          <div class="assist-row">
+            <span class="assist-char-label">${a.character}</span>
+            <div>
+              <div class="notation" style="margin-bottom:4px">${parseNotation(a.assistMove)}</div>
+              <div class="combo-notes">${a.usage}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+    ${t.tagCombos?.length ? `
+      <div class="note-block">
+        <h3>Tag Combos</h3>
+        <div class="combo-list">
+          ${t.tagCombos.map(tc => `
+            <div class="combo-card" style="background:var(--surface-2)">
+              <div class="combo-name">${tc.name}</div>
+              <div class="notation">${parseNotation(tc.notation)}</div>
+              ${tc.notes ? `<div class="combo-notes">${tc.notes}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  </div>`;
+}
+
+function noteList(title, items) {
+  if (!items?.length) return '';
+  return `<div class="note-block">
+    <h3>${title}</h3>
+    <ul class="note-list">${items.map(i=>`<li>${i}</li>`).join('')}</ul>
+  </div>`;
+}
+
+function empty(msg, hint) {
+  return `<div class="empty">
+    <div class="icon">📋</div>
+    <p>${msg}</p>
+    ${hint ? `<code>${hint}</code>` : ''}
+  </div>`;
+}
+
+// Section metadata
+
+const SECTIONS = {
+  combos:    { label: 'Combos',     sub: char => `Combo routes for ${char}` },
+  gameplan:  { label: 'Game Plan',  sub: ()   => 'Neutral, offense, and defense strategy' },
+  setups:    { label: 'Setups',     sub: ()   => 'Oki, mix options, and situational setups' },
+  knowledge: { label: 'Knowledge',  sub: ()   => 'Mechanics, frame data, tips & tricks' },
+  matchups:  { label: 'Matchups',   sub: char => `${char} vs. the cast` },
+  team:      { label: 'Team Notes', sub: ()   => 'Tag combos, assists, and synergy' }
+};
+
+// Render orchestration
+
+function renderCharBar() {
+  const bar = document.getElementById('charBar');
+  bar.innerHTML = Object.entries(characters).map(([key, ch]) => {
+    const active = key === activeChar && activeTab !== 'team';
+    const portraitEl = ch.portrait
+      ? `<div class="char-portrait-wrap"><img class="char-portrait" src="${ch.portrait}" alt="${ch.name}" onerror="this.parentNode.outerHTML='<div class=char-portrait-fallback>${ch.emoji||'?'}</div>'"></div>`
+      : `<div class="char-portrait-fallback">${ch.emoji || '?'}</div>`;
+    return `<button class="char-btn ${active ? 'active' : ''}"
+                    style="--char-color:${ch.color}"
+                    onclick="switchChar('${key}')">
+              ${portraitEl}${ch.name}
+            </button>`;
+  }).join('') +
+  `<button class="char-btn char-bar-team ${activeTab === 'team' ? 'active' : ''}"
+           style="--char-color:#c8941a"
+           onclick="switchTab('team')">🤝 Team</button>`;
+}
+
+function renderSidebar() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === activeTab);
+  });
+}
+
+function renderMain() {
+  const main    = document.getElementById('main');
+  const ch      = characters[activeChar];
+  const secMeta = SECTIONS[activeTab] || { label: activeTab, sub: () => '' };
+  const name    = activeTab === 'team' ? 'Team' : (ch?.name || '');
+
+  let body = '';
+  if (activeTab === 'team') {
+    body = renderTeam();
+  } else if (ch) {
+    switch (activeTab) {
+      case 'combos':    body = renderCombos(ch);    break;
+      case 'gameplan':  body = renderGameplan(ch);  break;
+      case 'setups':    body = renderSetups(ch);    break;
+      case 'knowledge': body = renderKnowledge(ch); break;
+      case 'matchups':  body = renderMatchups(ch);  break;
+    }
+  }
+
+  main.innerHTML = `
+    <div class="section-header">
+      <h2>${secMeta.label}</h2>
+      <p>${secMeta.sub(name)}</p>
+    </div>
+    ${body}
+  `;
+}
+
+function setAccent() {
+  const color = activeTab === 'team'
+    ? '#c8941a'
+    : (characters[activeChar]?.color || '#c8941a');
+  document.documentElement.style.setProperty('--accent', color);
+}
+
+function render() {
+  setAccent();
+  renderCharBar();
+  renderSidebar();
+  renderMain();
+}
+
+// Event wiring
+
+function switchChar(key) {
+  activeChar = key;
+  if (activeTab === 'team') activeTab = 'combos';
+  render();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  render();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+render();
+</script>
+</body>
+</html>
