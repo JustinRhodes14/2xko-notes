@@ -234,7 +234,8 @@
     .glyph {
       height: 26px;
       width: auto;
-      display: block;
+      display: inline-block;
+      vertical-align: middle;
       /* subtle shadow to help light-colored glyphs pop on dark bg */
       filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7));
     }
@@ -299,6 +300,50 @@
       color: var(--muted);
       border: 1px solid var(--border);
     }
+
+    .requires-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: rgba(200, 148, 26, 0.12);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      margin-left: 8px;
+    }
+
+    /* Combo group anchors */
+    .combo-group-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .combo-group-nav a {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--surface-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: border-color 0.12s, color 0.12s;
+    }
+
+    .combo-group-nav a:hover { border-color: var(--accent); color: var(--text); }
+
+    .combo-group-heading {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 22px 0 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      scroll-margin-top: 16px;
+    }
+
+    .combo-group-heading:first-child { margin-top: 0; padding-top: 0; border-top: none; }
 
     /* Notation key / alias legend */
     .alias-legend {
@@ -707,6 +752,8 @@ const characters = {
     combos: [
       // {
       //   name: "Name",
+      //   group: "General",        // optional — combos with the same group are bucketed together with a jump-to anchor
+      //   requires: "Lantern",     // optional — shown as a badge, e.g. "Lantern", "Tag Launcher"
       //   notation: "L --> M --> H --> down H",
       //   notes: "Optional notes.",
       //   tags: ["bnb", "meterless"],
@@ -772,38 +819,19 @@ const characters = {
       //   execution: "notation or free text",
       //   notes: "Additional context, mix-up options, etc."
       // }
-      {
-        name: "Knockdown Meaty",
-        description: "After a hard knockdown, dash forward and hit a meaty light on their wakeup.",
-        execution: "down H --> dash --> L meaty",
-        notes: "Beats most reversals if timed right. If they backdash, the L whiffs — follow with M to chase."
-      },
-      {
-        name: "Wakeup Mix",
-        description: "After knockdown, mix between a low and a forward S1 overhead attempt to make them guess on wakeup.",
-        execution: "down L or forward S1",
-        notes: "Keep them honest — once they see one option enough, flip to the other."
-      }
     ],
 
     // KNOWLEDGE
     knowledge: {
       mechanics: [
-        "S1 can be held/charged for increased range and damage — learn the timing",
-        "Down H is your launcher — all juggle routes start from here",
-        "[Add more mechanical notes as you learn them]"
+        "You can fully charge vault breaker in the air when you omit using normals in the sequence - this gives you a tag launcher ender in the corner",
+        "Off of a tag launcher in, you can fully charge vault breaker"
       ],
       frameData: [
-        "L: very fast, safe on block — your go-to pressure button",
-        "Down L: fast low, chains into M",
-        "H: slower, bigger reward — confirm only, risky on block",
-        "Down H: launcher, unsafe on block",
-        "[Add frame data as you research it]"
+        "forward S1 --> L is a safe block string, watch for parry though"
       ],
       tips: [
-        "Don't use S1 from point-blank as an opener — it can be punished on block",
-        "Dash into L is safer than raw S1 for approaching a patient opponent",
-        "[Add tips as you discover them]"
+        "S1 can beat Teemo shrooms, and maybe other projectiles?"
       ]
     },
 
@@ -844,84 +872,48 @@ const characters = {
     // COMBOS
     combos: [
       {
-        name: "Launcher BnB",
-        notation: "L --> M --> H --> down H",
-        notes: "Core bread and butter. The down H launches — follow up in the air after.",
-        tags: ["bnb", "meterless", "launcher", "midscreen"],
-        enders: [
-          { name: "Tag Launcher", notation: "T", notes: "Hand off to Vi for extension." },
-          { name: "Max Damage",   notation: "forward S1", notes: "Hook ender for damage close." }
-        ]
-      },
-      {
-        name: "Super Combo",
-        notation: "L --> M --> H --> S1 + S2",
-        notes: "Route into super for damage or to close out a stock.",
-        tags: ["super", "meter", "midscreen"]
-      },
-      {
-        name: "S1 Starter",
-        notation: "forward S1 --> M --> H --> down H",
-        notes: "Start with the hook to catch the opponent off-guard, then confirm into launcher.",
-        tags: ["bnb", "meterless", "special-starter"]
+        name: "Tag Launcher In",
+        group: "Tag-In Combos",
+        requires: "Tag Launcher",
+        notation: "charge H --> forward H --> up charge H --> up charge S1 --> forward H --> dash --> down S2 --> ",
+        notes: "Good tag in for Thresh, provides limit strike bonus and OKI with lantern active",
+        tags: ["tag_in", "limit_strike", "lantern_oki"]
       }
+      // {
+      //   name: "Lantern Combo Example",
+      //   group: "Lantern Combos",
+      //   requires: "Lantern",
+      //   notation: "L --> M --> H --> down H",
+      //   notes: "Only works with lantern present — add real entries as you find them.",
+      //   tags: ["lantern"]
+      // }
     ],
 
     // GAME PLAN
     gameplan: {
-      overview: "Thresh is a zoning/control character who dominates mid-range with the constant threat of his hook. Force the opponent to fear S1, then capitalize on whiff punishes and confirmed hits for big damage.",
+      overview: "Mid range controller, large buttons, and good set-play.",
       neutral: [
-        "Play at mid-range — close enough that S1 is a constant threat",
-        "S1 (hook) is your win condition — condition them to fear it, then vary your timing",
-        "Back H is your anti-air — use it to punish jump-in attempts",
-        "L and M are safe pokes to chip away and test their reactions"
+        ""
       ],
       offense: [
-        "After a launcher, follow up in the air — learn your air routes",
-        "After knockdown, use positioning to force a left/right guess on wakeup",
-        "Tag Vi in off launcher confirms when you want to burn meter for damage"
+        ""
       ],
       defense: [
-        "Back H can interrupt close-range pressure — look for gaps",
-        "S2 (super) can function as a reversal in some situations",
-        "If pressured up close, tag Vi in — she handles close range better"
+        ""      
       ]
     },
 
     // SETUPS
     setups: [
-      {
-        name: "Hook Bait and Punish",
-        description: "Walk into hook range to bait S1, then dash back and punish the whiff.",
-        execution: "walk forward --> back --> punish with S1 starter",
-        notes: "Works against opponents who throw S1 buttons when they see you in range. Conditions them to be passive."
-      },
-      {
-        name: "Knockdown Positioning",
-        description: "After a knockdown, position yourself to cover both their roll options.",
-        execution: "down H ender --> walk to optimal range",
-        notes: "From optimal range, forward S1 can catch a roll either way. Practice the spacing."
-      }
     ],
 
     // KNOWLEDGE
     knowledge: {
       mechanics: [
-        "S1 has different ranges/strengths depending on direction — learn the options",
-        "Back H launches the opponent upward — good anti-air and can start air combos",
-        "[Add more mechanical notes here]"
       ],
       frameData: [
-        "L: fast, safe — your fastest option up close",
-        "S1: significant startup, punishable on whiff — use thoughtfully",
-        "Back H: good priority vs jump-ins, can be used as an anti-air",
-        "[Add frame data as you research it]"
       ],
       tips: [
-        "Never throw S1 randomly — it's a confirm tool, not a poke. Let them walk into it",
-        "Back H is underused — it's a strong neutral and anti-air option",
-        "Mix up your S1 timings so the opponent can't pre-emptively dash through it",
-        "[Add tips as you develop them]"
       ]
     },
 
@@ -1044,20 +1036,16 @@ function renderInput(inp) {
       .join('<span class="n-plus">+</span>');
   }
 
-  // Modified attack: "down H", "forward S1", "charge H", etc.
-  const dirMatch = inp.match(/^(forward|back|up|down|charge)\s+(.+)$/i);
-  if (dirMatch) {
-    return renderGlyph(dirMatch[1].toLowerCase()) + renderGlyph(dirMatch[2]);
-  }
-
   return renderSingleToken(inp);
 }
 
 function renderSingleToken(tok) {
-  // Also handle "direction button" that ended up as a single token somehow
-  const dirMatch = tok.match(/^(forward|back|up|down)\s+(.+)$/i);
+  // Modified attack: "down H", "forward S1", "up charge H", "up charge S1", etc.
+  // Peel off any number of leading direction/charge modifier words before the final button.
+  const dirMatch = tok.match(/^((?:(?:forward|back|up|down|charge)\s+)+)(.+)$/i);
   if (dirMatch) {
-    return renderGlyph(dirMatch[1].toLowerCase()) + renderGlyph(dirMatch[2]);
+    const modifiers = dirMatch[1].trim().split(/\s+/);
+    return modifiers.map(m => renderGlyph(m.toLowerCase())).join('') + renderGlyph(dirMatch[2]);
   }
   return renderGlyph(tok);
 }
@@ -1071,6 +1059,33 @@ function renderGlyph(tok) {
   }
   // Unknown token — render as text chip
   return `<span class="n-raw">${tok}</span>`;
+}
+
+/* =============================================================
+   INLINE GLYPHS
+   Scans free-form prose (knowledge notes, gameplan tips, etc.)
+   for notation tokens and swaps them for glyph images in place,
+   leaving the surrounding sentence as plain text.
+
+   Buttons (L, M, H, S1, S2, T, A) must match exact case to avoid
+   glyph-ing common lowercase words like "a". Direction/charge
+   words match either case so "Down H" and "down H" both render.
+============================================================= */
+const INLINE_DIR_ALT = '(?:[Ff]orward|[Bb]ack|[Uu]p|[Dd]own|[Cc]harge)';
+const INLINE_TOKEN_RE = new RegExp(
+  `\\b((?:${INLINE_DIR_ALT}\\s+)+)?(L|M|H|S1|S2|T|A|[Dd]ash|[Pp]arry)\\b`, 'g'
+);
+
+function inlineGlyphs(text) {
+  if (!text) return text;
+  text = text.replace(/\s*-->\s*/g, '<span class="n-sep">▸</span>');
+  return text.replace(INLINE_TOKEN_RE, (match, dirPart, buttonPart) => {
+    let out = dirPart
+      ? dirPart.trim().split(/\s+/).map(d => renderGlyph(d.toLowerCase())).join('')
+      : '';
+    out += renderGlyph(/^(dash|parry)$/i.test(buttonPart) ? buttonPart.toLowerCase() : buttonPart);
+    return out;
+  });
 }
 
 
@@ -1111,33 +1126,52 @@ function renderCombos(c) {
 
   if (!c.combos?.length) return aliasBlock + empty('No combos yet.', 'Add entries to the combos array in the script.');
 
-  const comboList = `<div class="combo-list">
-    ${c.combos.map(combo => `
-      <div class="combo-card">
-        <div class="combo-name">${combo.name}</div>
-        <div class="notation">${parseNotation(combo.notation)}</div>
-        ${combo.notes ? `<div class="combo-notes">${combo.notes}</div>` : ''}
-        ${combo.tags?.length ? `<div class="combo-tags">${combo.tags.map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>` : ''}
-        ${combo.enders?.length ? `
-          <div class="combo-enders">
-            <div class="combo-enders-label">Enders</div>
-            ${combo.enders.map(e => `
-              <div class="ender-row${e.optional ? ' is-optional' : ''}">
-                <span class="ender-name">
-                  ${e.optional ? '<span class="ender-opt-badge">opt</span>' : ''}
-                  ${e.name}
-                </span>
-                <div class="notation">${parseNotation(e.notation)}</div>
-                ${e.notes ? `<span class="ender-notes">${e.notes}</span>` : ''}
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `).join('')}
-  </div>`;
+  // Group combos by their `group` field (default "General"), preserving first-seen order.
+  const groups = new Map();
+  c.combos.forEach(combo => {
+    const g = combo.group || 'General';
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(combo);
+  });
 
-  return aliasBlock + comboList;
+  const slug = g => 'combo-group-' + g.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  const groupNav = groups.size > 1 ? `
+    <div class="combo-group-nav">
+      ${[...groups.keys()].map(g => `<a href="#${slug(g)}">${g}</a>`).join('')}
+    </div>
+  ` : '';
+
+  const comboList = [...groups.entries()].map(([group, combos]) => `
+    ${groups.size > 1 ? `<div class="combo-group-heading" id="${slug(group)}">${group}</div>` : ''}
+    <div class="combo-list">
+      ${combos.map(combo => `
+        <div class="combo-card">
+          <div class="combo-name">${combo.name}${combo.requires ? `<span class="requires-badge">Requires: ${combo.requires}</span>` : ''}</div>
+          <div class="notation">${parseNotation(combo.notation)}</div>
+          ${combo.notes ? `<div class="combo-notes">${combo.notes}</div>` : ''}
+          ${combo.tags?.length ? `<div class="combo-tags">${combo.tags.map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>` : ''}
+          ${combo.enders?.length ? `
+            <div class="combo-enders">
+              <div class="combo-enders-label">Enders</div>
+              ${combo.enders.map(e => `
+                <div class="ender-row${e.optional ? ' is-optional' : ''}">
+                  <span class="ender-name">
+                    ${e.optional ? '<span class="ender-opt-badge">opt</span>' : ''}
+                    ${e.name}
+                  </span>
+                  <div class="notation">${parseNotation(e.notation)}</div>
+                  ${e.notes ? `<span class="ender-notes">${e.notes}</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  return aliasBlock + groupNav + comboList;
 }
 
 function renderGameplan(c) {
@@ -1232,7 +1266,7 @@ function noteList(title, items) {
   if (!items?.length) return '';
   return `<div class="note-block">
     <h3>${title}</h3>
-    <ul class="note-list">${items.map(i=>`<li>${i}</li>`).join('')}</ul>
+    <ul class="note-list">${items.map(i=>`<li>${inlineGlyphs(i)}</li>`).join('')}</ul>
   </div>`;
 }
 
