@@ -791,8 +791,7 @@ const characters = {
         name: "Full charge vault breaker",
         notation: "L --> M --> H --> forward S1 --> L --> charge M --> forward S1 --> charge L --> down M --> M --> down H --> charge S1",
         notes: "7 damage less than other tag launcher, easier to execute, W.I.P",
-        tags: ["corner", "tag_assist"]
-        ,
+        tags: ["corner", "tag_assist"],
         enders: [
           { name: "Tag launcher", notation: "down T", notes: "Tag launcher"}
         ]
@@ -903,12 +902,12 @@ const characters = {
         group: "Lantern Oki",
         notation: "L --> M --> H --> forward H --> up --> charge H --> forward H --> down S2 --> down charge H",
         notes: "A lot of options",
+        tags: ["lantern-oki, limit-strike, s1-ender, s2-ender, l3-ender"],
         enders: [
-          {name: "Limit Strike", notation: "down charge S1 --> forward H", notes: "Gives lantern OKI, can lead into other setups"},
-          {name: "S2 Ender", notation: "down charge S1 --> H --> S1 --> down S2 --> S1 --> A + S2", notes: "Max damage, could be good with double down"},
-          {name: "S1 or L3 Ender", notation: "down S1 --> S1 + A OR S1 + S2", notes: "Either option is viable, depends on damage or resources you want to consume")
-        ],
-        tags: ["lantern-oki, limit-strike, s1-ender, s2-ender, l3-ender"]
+          {name: "Limit Strike", notation: "down charge S1 --> forward H", notes: "Gives lantern OKI, can lead into other setups", optional: true},
+          {name: "S2 Ender", notation: "down charge S1 --> H --> S1 --> down S2 --> S1 --> A + S2", notes: "Max damage, could be good with double down", optional: true},
+          {name: "S1 or L3 Ender", notation: "down S1 --> S1 + A OR S1 + S2", notes: "Either option is viable, depends on damage or resources you want to consume", optional: true)
+        ]
       }
     ],
 
